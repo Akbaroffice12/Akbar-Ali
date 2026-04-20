@@ -1,0 +1,8 @@
+{
+  "name": "AZPDF",
+  "description": "AZ PDF\nOne App—For Everything",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}

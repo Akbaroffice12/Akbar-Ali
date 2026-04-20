@@ -1,0 +1,70 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique identifier for the user" },
+        "email": { "type": "string", "format": "email", "description": "User's email address" },
+        "displayName": { "type": "string", "description": "User's display name" },
+        "photoURL": { "type": "string", "format": "uri", "description": "User's profile picture URL" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the user account was created" },
+        "role": { "type": "string", "enum": ["admin", "user"], "description": "User's role in the application" }
+      },
+      "required": ["uid", "email", "createdAt", "role"]
+    },
+    "PDFDocument": {
+      "title": "PDF Document",
+      "description": "Information about a processed PDF document",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the document" },
+        "userId": { "type": "string", "description": "ID of the user who owns this document" },
+        "name": { "type": "string", "description": "Original filename" },
+        "toolId": { "type": "string", "description": "ID of the tool used to process this document" },
+        "processedAt": { "type": "string", "format": "date-time", "description": "When the document was processed" },
+        "size": { "type": "number", "description": "File size in bytes" }
+      },
+      "required": ["id", "userId", "name", "toolId", "processedAt"]
+    },
+    "AIConversation": {
+      "title": "AI Conversation",
+      "description": "History of AI tool interactions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the conversation" },
+        "userId": { "type": "string", "description": "ID of the user who owns this conversation" },
+        "toolId": { "type": "string", "description": "ID of the AI tool used" },
+        "messages": { 
+          "type": "array", 
+          "items": { 
+            "type": "object",
+            "properties": {
+              "role": { "type": "string", "enum": ["user", "ai"] },
+              "content": { "type": "string" },
+              "type": { "type": "string", "enum": ["text", "image", "video", "audio", "analysis"] },
+              "timestamp": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "toolId", "messages", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile documents"
+    },
+    "/users/{userId}/documents/{docId}": {
+      "schema": "PDFDocument",
+      "description": "User's processed PDF documents history"
+    },
+    "/users/{userId}/conversations/{convId}": {
+      "schema": "AIConversation",
+      "description": "User's AI interaction history"
+    }
+  }
+}
