@@ -9,7 +9,7 @@ import firebaseConfig from '../firebase-applet-config.json';
 const app = initializeApp(firebaseConfig);
 
 // Suppress internal Firestore connection warnings in the dev environment
-if (import.meta.env?.DEV) {
+if ((import.meta as any).env?.DEV) {
   setLogLevel('silent');
 }
 
