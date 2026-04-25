@@ -1,17 +1,38 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import { initializeApp, applicationDefault } from "firebase-admin/app";
+import { initializeApp, applicationDefault, cert } from "firebase-admin/app";
 import path from "path";
 
 // Initialize Firebase Admin
-// This uses the GOOGLE_APPLICATION_CREDENTIALS environment variable
 try {
-  initializeApp({
-    credential: applicationDefault(),
-  });
-  console.log("Firebase Admin initialized successfully.");
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    let serviceAccount;
+    try {
+      // Parse the JSON string from the environment variable
+      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    } catch (parseError) {
+      if (process.env.FIREBASE_SERVICE_ACCOUNT.startsWith('AIza')) {
+        console.error("🔥 CRITICAL ERROR: The FIREBASE_SERVICE_ACCOUNT secret contains a Web API Key (AIza...) instead of a Service Account JSON object.");
+        console.error("Please go to Firebase Console > Project Settings > Service Accounts > Generate New Private Key, and paste the ENTIRE contents of the downloaded .json file into the secret.");
+      } else {
+        console.error("🔥 CRITICAL ERROR: The FIREBASE_SERVICE_ACCOUNT secret is not valid JSON.", parseError);
+      }
+      throw parseError; // Prevent initialization with invalid data
+    }
+
+    initializeApp({
+      credential: cert(serviceAccount)
+    });
+    console.log("Firebase Admin initialized successfully using FIREBASE_SERVICE_ACCOUNT secret.");
+  } else {
+    // Fallback if deployed in an environment with default credentials
+    initializeApp({
+      credential: applicationDefault(),
+    });
+    console.log("Firebase Admin initialized using applicationDefault().");
+  }
 } catch (e) {
-  console.error("Firebase Admin initialization error. Make sure GOOGLE_APPLICATION_CREDENTIALS is set:", e);
+  console.error("Firebase Admin initialization error:", e);
 }
 
 async function getAccessToken() {
